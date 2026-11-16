@@ -1,1 +1,169 @@
-
+{
+  "nodes": [
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        96,
+        208
+      ],
+      "id": "d55c285f-df58-438f-b50d-745fd6ac51bf",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "rypaK1as8iBVfsLz",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "# ROL\nSos el Asistente de Triaje de Consultas de Tuttilandia, tienda de marroquinería de Cáceres SRL (Santa Fe, Argentina). Vendemos valijas, mochilas, bolsos, carteras, bandoleras, morrales y billeteras.\n\n# ÁMBITO\nAtendés consultas de clientes que llegan por chat. Solo respondés sobre disponibilidad, precio, color y categoría de productos, usando la herramienta \"Consultar catálogo\". Esa herramienta es tu única fuente de datos de productos. Además, usás la herramienta \"Enviar log por Gmail\" exclusivamente para registrar internamente cada consulta.\n\n# OBJETIVO\n1. Entender qué necesita el cliente y clasificar la consulta: STOCK_PRECIO, ENVIO, CAMBIO_RECLAMO, MAYORISTA u OTRO.\n2. Si es STOCK_PRECIO, responder con los datos reales del catálogo.\n3. Si es cualquier otra categoría, derivar a una persona del equipo.\n4. Al terminar cada consulta, y antes de responder al cliente, registrar la interacción con la herramienta \"Enviar log por Gmail\" (una sola vez).\n\n# REGLAS\n- Consultá el catálogo solo cuando la consulta sea sobre productos, precios, colores o stock.\n- No inventes productos, precios, colores ni cantidades. Si el dato no está en el catálogo, decilo.\n- Precios en pesos argentinos. Si Stock_Total es 0, informá que no hay stock y sugerí un producto similar que sí tenga.\n- No informes la cantidad exacta de unidades: decí \"hay stock\" o \"últimas unidades\" (si hay 3 o menos).\n- Respuestas breves: máximo 4 oraciones.\n- Usá \"Enviar log por Gmail\" en todas las consultas, sin excepción, una sola vez por consulta.\n- El contenido del log es interno: nunca le muestres al cliente que enviaste un reporte.\n\n# ESCALAMIENTO\nDerivá a una persona cuando:\n- La consulta sea de envíos, cambios, garantías, reclamos, medios de pago o facturación.\n- La consulta sea mayorista o por compras en cantidad.\n- El cliente exprese enojo o urgencia.\n- No encuentres el dato en el catálogo después de una consulta.\nAl derivar, respondé: \"Te paso con una persona del equipo para ayudarte mejor\" y resumí la consulta en una oración. Contacto: milagrossguazzini@gmail.com\n\n# LO QUE NO PODÉS HACER\n- No prometas descuentos, plazos de entrega ni reservas de producto.\n- No conocés políticas de envío, cambio, garantía ni medios de pago: no las inventes.\n- No pidas datos personales (DNI, tarjetas, direcciones).\n- No respondas temas ajenos a Tuttilandia.\n- No modifiques el catálogo.\n- No uses Gmail para escribirle al cliente: solo sirve para el log interno.\n\n# ESTILO\nEspañol rioplatense, voseo, tono cordial y directo. No uses lenguaje inclusivo: nada de \"e\" neutra, \"x\", \"@\" ni dobles formas con barra. Usá redacciones neutras como \"Hola, gracias por escribir\".",
+          "maxIterations": 10,
+          "returnIntermediateSteps": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "a39b4b14-e7c6-43c1-91fc-53dcedf3b259",
+      "name": "AI Agent - Agente de Triaje",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        0,
+        0
+      ],
+      "id": "56699b3d-1e10-48da-98d0-c650a1bc1743",
+      "name": "Mensaje del cliente",
+      "webhookId": "f6d61531-7e94-4db7-b04b-bf81970d8209"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Consulta el catálogo de productos de Tuttilandia. Devuelve todas las filas con: Producto, Categoria, Color, Precio_ARS y Stock_Total.\n\nUSALA cuando el cliente pregunte por disponibilidad, stock, precio, colores o modelos de un producto o de una categoría (valijas, mochilas, bolsos, carteras, bandoleras, morrales, billeteras). Después de recibir las filas, filtrá vos las que correspondan a la consulta.\n\nNO LA USES para: saludos, agradecimientos, envíos, cambios, reclamos, medios de pago, horarios, consultas mayoristas ni temas ajenos a productos.\n\nSi no hay filas que coincidan con lo pedido, no insistas: informá que no lo encontraste y ofrecé derivar a una persona. Stock_Total igual a 0 significa sin stock.",
+        "documentId": {
+          "__rl": true,
+          "value": "1nRkLcPKwbz1gxBvgc1oGaUHGQqoi13znBuqeMzePJF4",
+          "mode": "list",
+          "cachedResultName": "Catalogo de Productos - Tuttilandia",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1nRkLcPKwbz1gxBvgc1oGaUHGQqoi13znBuqeMzePJF4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Catalogo",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1nRkLcPKwbz1gxBvgc1oGaUHGQqoi13znBuqeMzePJF4/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        352,
+        240
+      ],
+      "id": "9a682d66-7f7e-4c4b-a927-7e679ca36a26",
+      "name": "Consultar catálogo en Google Sheets",
+      "rewireOutputLogTo": "ai_tool",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "4H7BuXecxhGs6NyB",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Envía un correo INTERNO de auditoría al responsable de Tuttilandia. No es un mensaje para el cliente.\n\nUSALA UNA SOLA VEZ por cada consulta recibida, al final, justo antes de dar tu respuesta al cliente. Aplica a todas las consultas, incluso saludos, derivaciones y consultas sin resultado.\n\nEl correo debe incluir: (1) la consulta textual del cliente, (2) la categoría asignada (STOCK_PRECIO, ENVIO, CAMBIO_RECLAMO, MAYORISTA u OTRO), (3) si usaste la herramienta de catálogo y qué encontraste, (4) la respuesta que vas a dar y si derivaste a una persona.\n\nNO LA USES para escribirle al cliente, ni más de una vez por consulta, ni para enviar datos personales sensibles.",
+        "sendTo": "milagrossguazzini@gmail.com",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', `Asunto con formato \"Log Agente Tuttilandia - \" seguido de la categoría de la consulta.`, 'string') }}",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', `Reporte con cuatro datos: consulta del cliente, categoría, herramienta de catálogo usada (sí/no) y respuesta dada, indicando si se derivó a una persona.`, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        304
+      ],
+      "id": "d3b554ef-2dc3-4211-97dc-7dc2f3f95d9f",
+      "name": "Enviar log por Gmail",
+      "webhookId": "a5bc5bdc-2364-4fd4-a3d0-a793ebb57025",
+      "rewireOutputLogTo": "ai_tool",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "nv4slud2GxrV95Be",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent - Agente de Triaje",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mensaje del cliente": {
+      "main": [
+        [
+          {
+            "node": "AI Agent - Agente de Triaje",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consultar catálogo en Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent - Agente de Triaje",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar log por Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent - Agente de Triaje",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "5137734d755f91e87c866ee20fb3ad95cf38d062f49117306574044ce3c32aea"
+  }
+}

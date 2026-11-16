@@ -41,7 +41,6 @@ Se eligió Groq por costo y velocidad (plan gratuito para desarrollo). El nodo e
 |---|---|---|---|
 | Consulta de productos | Sí | Sí (1 mail) | Responde con datos reales de la hoja |
 | Reclamo | No | Sí (1 mail) | Deriva a una persona, sin inventar políticas |
-| Saludo | No | Sí (1 mail) | Responde cordialmente |
 
 Las capturas de las pruebas están en la carpeta `capturas/`.
 
